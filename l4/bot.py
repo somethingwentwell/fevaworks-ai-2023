@@ -22,7 +22,7 @@ logging.basicConfig(
 MODEL = os.getenv("ENGINE")
 OPENAI_NAME = os.getenv("OPENAI_NAME")
 API_KEY = os.getenv("OPENAI_API_KEY")
-API_URL = "https://{}.openai.azure.com/openai/deployments/{}/completions?api-version=2022-12-01".format(OPENAI_NAME, MODEL)
+API_URL = "https://{}.openai.azure.com/openai/deployments/{}/completions?api-version=2024-02-15-preview".format(OPENAI_NAME, MODEL)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot powered by Azure OpenAI, please talk to me!")
