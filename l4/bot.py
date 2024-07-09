@@ -22,7 +22,7 @@ logging.basicConfig(
 MODEL = os.getenv("ENGINE")
 OPENAI_NAME = os.getenv("OPENAI_NAME")
 API_KEY = os.getenv("OPENAI_API_KEY")
-API_URL = "https://{}.openai.azure.com/openai/deployments/{}/completions?api-version=2024-02-15-preview".format(OPENAI_NAME, MODEL)
+API_URL = "https://{}.openai.azure.com/openai/deployments/{}/chat/completions?api-version=2023-12-01-preview".format(OPENAI_NAME, MODEL)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot powered by Azure OpenAI, please talk to me!")
@@ -33,15 +33,17 @@ async def photo(update, context):
 
 async def echo(update, context):
     preprompt = os.getenv("PREPROMPT")
-    prompt = preprompt + update.message.text
     data = {
-        "prompt": prompt,
+        "messages": [
+            {"role": "system", "content": preprompt},
+            {"role": "user", "content": update.message.text}
+        ],
         "max_tokens": 100,
         "temperature": 1,
         "frequency_penalty": 2,
         "presence_penalty": 2,
         "top_p": 0.5,
-        "best_of": 1,
+        "n": 1,
         "stop": ["User:"]
     }
     headers = {
@@ -52,7 +54,7 @@ async def echo(update, context):
         async with session.post(API_URL, headers=headers, data=json.dumps(data)) as response:
             print(response)
             if response.status == 200:
-                result = (await response.json())['choices'][0]['text']
+                result = (await response.json())['choices'][0]['message']['content']
                 text_parts = result.split("\n", 1)
                 new_text = text_parts[1] if len(text_parts) > 1 else text_parts
                 await context.bot.send_message(chat_id=update.effective_chat.id, text=new_text)
